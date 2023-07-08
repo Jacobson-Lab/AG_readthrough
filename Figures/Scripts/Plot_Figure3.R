@@ -1,5 +1,5 @@
 # ----------------------------------------
-# Figure 4
+# Figure 3
 # ----------------------------------------
 
 library(dplyr)
@@ -32,6 +32,6 @@ CairoFonts(
   symbol = "Symbol"
 )
 
-cairo_pdf(filename = "Figure4.pdf", family = "Arial", width = 7.5, height = 4) 
+cairo_pdf(filename = "Figure3.pdf", family = "Arial", width = 7.5, height = 4) 
 p_all
 dev.off()
