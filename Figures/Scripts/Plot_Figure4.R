@@ -1,5 +1,5 @@
 # ----------------------------------------
-# Figure 5
+# Figure 4
 # ----------------------------------------
 
 library(dplyr)
@@ -102,6 +102,6 @@ CairoFonts(
   bolditalic = "Arial:style=Black Italic",
   symbol = "Symbol"
 )
-cairo_pdf(filename = "Figure5.pdf", family = "Arial", width = 7.5, height = 7.5) 
+cairo_pdf(filename = "Figure4.pdf", family = "Arial", width = 7.5, height = 7.5) 
 p
 dev.off()
