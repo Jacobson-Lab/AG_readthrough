@@ -63,9 +63,9 @@ dfpc <- bind_rows(lapply(allAG_reg, compare_rt_categorical, vars = "codon_m01", 
 dfpc$Var <- gsub("T", "U", dfpc$Var)
 write.table(x = dfpc, file = "../Figures/Data/wilcoxon_psite_codon.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
-## 4. 3'-UTR length
-dfu <- bind_rows(lapply(allAG_reg, function(x) x[, c("log_rte", "l_utr3")]), .id = "Sample")
-write.table(x = dfu, file = "../Figures/Data/readthrough_3utr_length.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
+## 4. 3'-UTR length (with stop codon, nt +4, MFE)
+dfu <- bind_rows(lapply(allAG_reg, function(x) x[, c("log_rte", "l_utr3", "stop_codon", "nt_p04", "stop_ntp04", "MFE")]), .id = "Sample")
+write.table(x = dfu, file = "../Figures/Data/readthrough_3utr_length_effect.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
 # --------------------------------------------------
 ## Stop codon and nucleotides used in Dual-Luc assay

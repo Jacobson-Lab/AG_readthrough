@@ -14,8 +14,8 @@ xsheet <- xsheet[c(5:13)] # Choose sheets to load
 allAG_merged <- list()
 for (i in 1:length(xsheet)) {
   dat <- as.data.frame(read_excel(path = xpath, sheet = xsheet[i]))
-  dat <- dat[, c(1, 5:8, 21:23, 29, 30)]
-  colnames(dat) <- c("transcript", "l_tr", "l_cds", "l_utr5", "l_utr3", "rpkm_cds", "rpkm_utr5", "rpkm_utr3", "rpkm_ext", "rte_ext")
+  dat <- dat[, c(1, 5:9, 21:23, 29, 30)]
+  colnames(dat) <- c("transcript", "l_tr", "l_cds", "l_utr5", "l_utr3", "gene_name", "rpkm_cds", "rpkm_utr5", "rpkm_utr3", "rpkm_ext", "rte_ext")
   # Fix lengths of mRNA regions to real lengths (Wangen had adjusted it to the need of their analysis)
   dat$l_utr5 <- dat$l_utr5+6
   dat$l_cds <- dat$l_cds+30
@@ -28,8 +28,9 @@ names(allAG_merged)[c(1, 2, 8, 9)] <- c("Untr", "G418_500", "G418_2000", "G418_5
 save(allAG_merged, file = "allAG_merged.Rdata")
 
 ## Get cDNA sequences FASTA from ensembl ----------------------------------------------------------------------------------------------
-  ## Find unique ENST among all samples
-ut <- unique(bind_rows(lapply(allAG_merged, function(x) x[, 1:5])))
+  ## List of unique ENST among all samples' RNA-seq and Ribo-seq data
+ut <- read.table("unique_ENST_table.txt", header = TRUE)
+colnames(ut)[2:5] <- c("l_tr", "l_cds", "l_utr5", "l_utr3")
   ## Get FASTA sequence
 library(biomaRt)
 ensembl <- useEnsembl(biomart = "ENSEMBL_MART_ENSEMBL", dataset = "hsapiens_gene_ensembl")
@@ -38,7 +39,7 @@ colnames(seqq) <- c("sequence", "transcript")
 
 ## Record mRNA features ---------------------------------------------------------------------------------------------------------------
 feature_file <- left_join(ut, seqq, by = "transcript")
-feature_file <- feature_file[!is.na(feature_file$sequence), ] # Remove rows that the sequence is missing
+feature_file <- feature_file[!is.na(feature_file$sequence), ] # Remove rows that the sequence is missing. Left with 13193 genes.
 sum(feature_file$l_tr != nchar(feature_file$sequence)) # Check that number of nt from sequence column is equal to transcript length (l_tr). Sum of unequal numbers should be zero
 
 ### Random numbers and factors (negative controls)
@@ -87,6 +88,16 @@ feature_file <- aa_prop(seq_aa_m30 = seq_aa_m30, aa_range = 1:11, tunnel_part = 
 feature_file <- aa_prop(seq_aa_m30 = seq_aa_m30, aa_range = 12:18, tunnel_part = "central", feature_file = feature_file)
 feature_file <- aa_prop(seq_aa_m30 = seq_aa_m30, aa_range = 19:21, tunnel_part = "constriction", feature_file = feature_file)
 feature_file <- aa_prop(seq_aa_m30 = seq_aa_m30, aa_range = 22:28, tunnel_part = "upper", feature_file = feature_file) # Near peptidyl transferase center (excluding excluding P- and E-site codons)
+
+### Secondary structure in the 3'-UTR
+seq_utr3 <- substr(feature_file$sequence, start = feature_file$l_tr - feature_file$l_utr3 + 1 + 3, stop = feature_file$l_tr) # Get 3'-UTR sequence, excluding stop codon
+names(seq_utr3) <- feature_file$transcript
+seq_utr3 <- as.list(seq_utr3)
+seqinr::write.fasta(sequences = seq_utr3, names = names(seq_utr3), file.out = "All_genes_seq_utr3_minusStop.fa")
+  # Run ViennaRNA's RNALfold -L 150, extract prediction with the lowest MFE (most stable) for each gene
+mfe <- read.table("minMFE.txt", header = TRUE, sep = "\t")
+feature_file <- left_join(feature_file, mfe, by = "transcript")
+feature_file[is.na(feature_file$MFE), ]$MFE <- 0 # set NA MFE to zero
 
 ### Save file
 save(feature_file, file = "feature_file_wangen_elife_2020.Rdata")
