@@ -62,9 +62,9 @@ A <- ggplot() +
   scale_fill_gradient2(name = "%IncMSE  ", low = "blue", mid = "white", high = "red", midpoint = 0,
                        limits = c(-15, 15), oob = scales::squish) +
   scale_y_discrete(limits = rev(levels(all.imp_df$Sample))) +
-  theme_bw(base_size = 9) +
+  theme_bw(base_size = 7) +
   theme(legend.position = "top", legend.key.width = unit(1, "cm"), legend.key.height = unit(0.25, "cm"), 
-        legend.box.spacing = unit(0.5, "cm"), legend.title.align = 0,
+        legend.box.spacing = unit(0, "cm"), legend.title.align = 0,
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), axis.text.y = element_text(face = "italic"), 
         axis.title = element_blank(),
         strip.background = element_blank(), strip.text.y = element_blank(), 
@@ -77,9 +77,9 @@ B <- ggplot() +
   scale_fill_gradient2(name = "MDA  ", low = "blue", mid = "white", high = "red", midpoint = 0,
                        limits = c(-15, 15), oob = scales::squish) +
   scale_y_discrete(limits = rev(levels(all.imp_df$Sample))) +
-  theme_bw(base_size = 9) +
+  theme_bw(base_size = 7) +
   theme(legend.position = "top", legend.key.width = unit(1, "cm"), legend.key.height = unit(0.25, "cm"), 
-        legend.box.spacing = unit(0.5, "cm"), legend.title.align = 0,
+        legend.box.spacing = unit(0, "cm"), legend.title.align = 0,
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), axis.text.y = element_text(face = "italic"), 
         axis.title = element_blank(),
         strip.background = element_blank(), strip.text.y = element_blank(), 
@@ -89,8 +89,8 @@ B <- ggplot() +
 # Combine panels
 library(patchwork)
 p <- (A / B) + 
-  plot_annotation(tag_levels = 'A') &
-  theme(plot.tag = element_text(size = 12, face = "bold"), plot.tag.position = "topleft")
+  plot_annotation(tag_levels = 'a') &
+  theme(plot.tag = element_text(size = 8, face = "bold"), plot.tag.position = "topleft")
 
 # Export plot
 library(Cairo)
@@ -101,6 +101,6 @@ CairoFonts(
   bolditalic = "Arial:style=Black Italic",
   symbol = "Symbol"
 )
-cairo_pdf(filename = "Figure1.pdf", family = "Arial", width = 8, height = 7) 
+cairo_pdf(filename = "../Plots/Figure1.pdf", family = "Arial", width = 7, height = 5) 
 p
 dev.off()

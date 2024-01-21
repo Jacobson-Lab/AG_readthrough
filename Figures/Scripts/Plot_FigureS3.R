@@ -4,51 +4,116 @@
 
 library(dplyr)
 library(ggplot2)
-library(ggpubr)
 
-dfu <- read.table("../Data/readthrough_3utr_length.txt", header = TRUE)
-dfu$Sample <- recode_factor(dfu$Sample, Untr = "Untreated", Amik = "Amikacin", 
-                            G418_2000 = "G418 (2)", G418_500 = "G418 (0.5)", G418_500_10min = "G418 (0.5, 10 min)",  
-                            Genta = "Gentamicin", Neo = "Neomycin", Parom = "Paromomycin", Tobra = "Tobramycin")
-# A
-p_filter <- ggplot(dfu[which(dfu$l_utr3 >= 100 & dfu$l_utr3 <= 5000), ], aes(x = l_utr3, y = log_rte)) +
-  geom_point(alpha = 0.3, color = "black", size = 0.25) +
-  geom_smooth(method = "lm", formula = y~x) +
-  stat_cor(method = "spearman", geom = "text", label.x.npc = "middle", label.y = 5.5, hjust = 0.5, vjust = 0.5, size = 8/.pt, cor.coef.name = "rho", color = "blue") +
-  facet_wrap(~Sample, nrow = 2) +
-  scale_x_log10() +
-  xlab("3'-UTR length (nt)") + ylab("Readthrough Efficiency") + 
-  coord_cartesian(ylim = c(-10.5, 6.5)) +
-  theme_bw(base_size = 10) + 
-  theme(panel.grid = element_blank(), panel.spacing.x = unit(0.2,"cm"), panel.spacing.y = unit(0.2, "cm"),
-        strip.text = element_text(face = "italic"), strip.background = element_rect(fill = "white"), aspect.ratio = 1)
+stop4_chisq <- read.table("../Data/chisq_proportion_stop4.txt", header = TRUE)
+stop4_chisq <- stop4_chisq %>% group_by(Sample, stop_codon) %>% mutate(total_by_stop = sum(observed_count))
+stop4_chisq$expected_fraction_by_stop <- stop4_chisq$expected_count / stop4_chisq$total_by_stop
+stop4_chisq$observed_fraction_by_stop <- stop4_chisq$observed_count / stop4_chisq$total_by_stop
+stop4_chisq$Sample <- recode_factor(stop4_chisq$Sample, Untr = "Untreated", Amik = "Amikacin", 
+                                    G418_2000 = "G418 (2)", G418_500 = "G418 (0.5)", G418_500_10min = "G418 (0.5, 10 min)",  
+                                    Genta = "Gentamicin", Neo = "Neomycin", Parom = "Paromomycin", Tobra = "Tobramycin", 
+                                    Reference = "Reference")
 
-# B
-dfu_untr <- dfu[which(dfu$Sample == "Untreated"), ]
+# Number of mRNAs in each group
+dfn <- stop4_chisq %>% group_by(Sample) %>% summarise(n = sum(observed_count))
+p_n <- ggplot(dfn, aes(x = n, y = Sample)) + 
+  geom_col(fill = "#999999") + geom_text(aes(label = n), hjust = 0, size = 6/.pt) +
+  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
+  coord_cartesian(xlim = c(0, 15000)) +
+  xlab("Number of mRNAs") + ylab("") +
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), axis.text.y = element_text(face = "italic"))
 
-## Yeast data
-dfy <- read.table("https://raw.githubusercontent.com/Jacobson-Lab/sup45-ts_readthrough/main/Figures/Data/Data_Figure8.txt", header = TRUE)
-dfy_wt <- dfy[which(dfy$Sample == "sup45_wt_25C"), ]
+# Observed frequency of stop codon and nt +4 together
+p_stop4_ob <- ggplot(stop4_chisq) +
+  geom_tile(aes(x = nt_p04, y = Sample, fill = observed_fraction*100), height = 0.9, width = 0.9) +
+  facet_grid(.~stop_codon) +
+  scale_fill_distiller(name = "Observed frequency (%) of\nstop codon and nt +4", palette = "Spectral", limit = c(2, 21)) +
+  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
+  xlab("nt +4") + ylab("") +
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
+        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
+        axis.text.y = element_text(face = "italic"),
+        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+  guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
+                                title.position = "top"))
 
-## Combine data of two organisms
-dfw <- data.frame(organism = c(rep("Yeast", times = nrow(dfy_wt)), rep("HEK293T", times = nrow(dfu_untr))), 
-                  l_utr3 = c(dfy_wt$value, dfu_untr$l_utr3))
+# Expected frequency of stop codon and nt +4 together
+p_stop4_ex <- ggplot(stop4_chisq) +
+  geom_tile(aes(x = nt_p04, y = Sample, fill = expected_fraction*100), height = 0.9, width = 0.9) +
+  facet_grid(.~stop_codon) +
+  scale_fill_distiller(name = "Expected frequency (%) of\nstop codon and nt +4", palette = "Spectral", limit = c(2, 21)) +
+  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
+  xlab("nt +4") + ylab("") +
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
+        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
+        axis.text.y = element_text(face = "italic"),
+        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+  guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
+                                title.position = "top"))
 
-pl <- ggplot(dfw, aes(x = l_utr3, fill = organism)) + 
-  geom_histogram(position = "dodge") + 
-  scale_x_log10() + 
-  scale_fill_manual(values = c(HEK293T = "coral1", Yeast = "goldenrod1"), name = "") + 
-  xlab("3'-UTR length (nt)") + ylab("Count") + 
-  theme_bw(base_size = 10) + 
-  theme(panel.grid = element_blank(), legend.position = c(0.8, 0.8), legend.title = element_blank(), legend.background = element_blank())
+# Observed frequency of stop codon and nt +4, separately
+df_stop <- stop4_chisq %>% group_by(Sample, stop_codon) %>% summarise(count = sum(observed_count))
+df_stop <- df_stop %>% group_by(Sample) %>% mutate(fraction = count / sum(count))
+colnames(df_stop)[2] <- "position"
+df_stop$feature <- "Stop codon"
+df_nt4 <- stop4_chisq %>% group_by(Sample, nt_p04) %>% summarise(count = sum(observed_count))
+df_nt4 <- df_nt4 %>% group_by(Sample) %>% mutate(fraction = count / sum(count))
+colnames(df_nt4)[2] <- "position"
+df_nt4$feature <- "nt +4"
+df <- rbind(df_stop, df_nt4)
+df$feature <- factor(df$feature, levels = c("Stop codon", "nt +4"))
 
-# Combine panels
+p_sep <- ggplot(df) +
+  geom_tile(aes(x = position, y = Sample, fill = fraction*100), height = 0.9, width = 0.9) +
+  facet_grid(.~feature, scales = "free_x", space = "free_x") +
+  scale_fill_distiller(name = "Observed frequency (%)", palette = "Spectral", limit = c(10, 60)) +
+  scale_y_discrete(limits = rev(levels(df_stop$Sample))) +
+  xlab("") + ylab("") +
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
+        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
+        axis.text.y = element_text(face = "italic"),
+        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+  guides(fill = guide_colourbar(order = 1, barwidth = unit(4, "cm"), barheight = unit(0.25, "cm"), 
+                                title.position = "top"))
+
+# Observed frequency, grouped by stop codon identity
+p_ob <- ggplot(stop4_chisq) +
+  geom_tile(aes(x = nt_p04, y = Sample, fill = observed_fraction_by_stop*100), height = 0.9, width = 0.9) +
+  facet_grid(.~stop_codon) +
+  scale_fill_distiller(name = "Observed frequency (%) of\nnt +4 for each stop codon", palette = "Spectral", limits = c(10, 45)) +
+  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
+  xlab("nt +4") + ylab("") +
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
+        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), legend.title.align = 0.5,
+        axis.text.y = element_text(face = "italic"),
+        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+  guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
+                                title.position = "top"))
+
+# Expected frequency, grouped by stop codon identity
+p_ex <- ggplot(stop4_chisq) +
+  geom_tile(aes(x = nt_p04, y = Sample, fill = expected_fraction_by_stop*100), height = 0.9, width = 0.9) +
+  facet_grid(.~stop_codon) +
+  scale_fill_distiller(name = "Expected frequency (%) of\nnt +4 for each stop codon", palette = "Spectral", limits = c(10, 45)) +
+  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
+  xlab("nt +4") + ylab("") +
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
+        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), 
+        axis.text.y = element_text(face = "italic"),
+        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+  guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
+                                title.position = "top"))
+
 library(patchwork)
-pb <- pl + plot_spacer() + plot_layout(nrow = 1, widths = c(0.5, 0.5))
-p <- (p_filter / pb) + 
-  plot_layout(heights = c(2, 1)) +
-  plot_annotation(tag_levels = 'A') &
-  theme(plot.tag = element_text(size = 12, face = "bold"), plot.tag.position = "topleft")
+p <- (p_n | p_sep) / (p_stop4_ob | p_ob) / (p_stop4_ex | p_ex) +
+  plot_annotation(tag_levels = 'a') &
+  theme(plot.tag = element_text(size = 8, face = "bold"), plot.tag.position = "topleft")
 
 # Export plot
 library(Cairo)
@@ -59,6 +124,6 @@ CairoFonts(
   bolditalic = "Arial:style=Black Italic",
   symbol = "Symbol"
 )
-cairo_pdf(filename = "FigureS3.pdf", family = "Arial", width = 7.5, height = 6) 
+cairo_pdf(filename = "../Plots/FigureS3.pdf", family = "Arial", width = 7, height = 8.5) 
 p
 dev.off()

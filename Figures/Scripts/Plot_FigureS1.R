@@ -16,7 +16,7 @@ p_nrmse <- ggplot(nrmse_meansd, aes(x = Sample, y = nrmse_mean)) +
   geom_errorbar(aes(x = Sample, ymin = nrmse_mean-nrmse_sd, ymax = nrmse_mean+nrmse_sd), width = 0.2, position = position_dodge(0.9)) +
   ylab("NRMSE") +
   coord_cartesian(ylim = c(0, 0.2)) +
-  theme_bw(base_size = 10) +
+  theme_bw(base_size = 7) +
   theme(panel.grid = element_blank(), axis.text.x = element_text(face = "italic", angle = 90, hjust = 1, vjust = 0.5), axis.title.x = element_blank())
 
 # B
@@ -30,14 +30,14 @@ p_auroc <- ggplot(data = AUROC_meansd, aes(x = Sample, y = AUROC_mean)) +
   geom_hline(yintercept = 0.5, color = "red") +
   ylab("AUROC") + xlab("Sample") +
   coord_cartesian(ylim = c(0, 1)) +
-  theme_bw(base_size = 10) +
+  theme_bw(base_size = 7) +
   theme(panel.grid = element_blank(), axis.text.x = element_text(face = "italic", angle = 90, hjust = 1, vjust = 0.5), axis.title.x = element_blank())
 
 # Combine panels
 library(patchwork)
 p <- (p_nrmse | p_auroc) + 
-  plot_annotation(tag_levels = 'A') &
-  theme(plot.tag = element_text(size = 12, face = "bold"), plot.tag.position = "topleft")
+  plot_annotation(tag_levels = 'a') &
+  theme(plot.tag = element_text(size = 8, face = "bold"), plot.tag.position = "topleft")
 
 # Export plot
 library(Cairo)
@@ -48,6 +48,6 @@ CairoFonts(
   bolditalic = "Arial:style=Black Italic",
   symbol = "Symbol"
 )
-cairo_pdf(filename = "FigureS1.pdf", family = "Arial", width = 7, height = 3.5) 
+cairo_pdf(filename = "../Plots/FigureS1.pdf", family = "Arial", width = 7, height = 3.5) 
 p
 dev.off()

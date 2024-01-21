@@ -3,117 +3,65 @@
 # ----------------------------------------
 
 library(dplyr)
+library(data.table)
 library(ggplot2)
+library(ggrepel)
+library(rstatix)
 
-stop4_chisq <- read.table("../Data/chisq_proportion_stop4.txt", header = TRUE)
-stop4_chisq <- stop4_chisq %>% group_by(Sample, stop_codon) %>% mutate(total_by_stop = sum(observed_count))
-stop4_chisq$expected_fraction_by_stop <- stop4_chisq$expected_count / stop4_chisq$total_by_stop
-stop4_chisq$observed_fraction_by_stop <- stop4_chisq$observed_count / stop4_chisq$total_by_stop
-stop4_chisq$Sample <- recode_factor(stop4_chisq$Sample, Untr = "Untreated", Amik = "Amikacin", 
-                                    G418_2000 = "G418 (2)", G418_500 = "G418 (0.5)", G418_500_10min = "G418 (0.5, 10 min)",  
-                                    Genta = "Gentamicin", Neo = "Neomycin", Parom = "Paromomycin", Tobra = "Tobramycin", 
-                                    Reference = "Reference")
+load("../../Analysis scripts/allAG_merged.Rdata") # From prepare_data.R
+load("../../Analysis scripts/feature_file_wangen_elife_2020.Rdata") # From prepare_data.R
+source("../../Analysis scripts/functions_analyses.R")
+feature_file$stop_ntp04 <- paste0(feature_file$stop_codon, feature_file$nt_p04)
+allAG_reg <- lapply(allAG_merged, prep, cds_rpkm_cutoff = 5, utr3_rpkm_cutoff = 0.5, group_param = "none", feature_file = feature_file, utr3_region = "ext")
 
-# Number of mRNAs in each group
-dfn <- stop4_chisq %>% group_by(Sample) %>% summarise(n = sum(observed_count))
-p_n <- ggplot(dfn, aes(x = n, y = Sample)) + 
-  geom_col(fill = "#999999") + geom_text(aes(label = n), hjust = 0, size = 8/.pt) +
-  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
-  coord_cartesian(xlim = c(0, 15000)) +
-  xlab("Number of mRNAs") + ylab("") +
-  theme_bw(base_size = 10) + 
-  theme(panel.grid = element_blank(), axis.text.y = element_text(face = "italic"))
+## List of readthough genes from Manjunath et al. (2022)
+rt_genes <- data.frame(gene_name = c("HBB", "MPZ", "VEGFA", "AQP4", "OPRL1", "OPRK1", "MAPK10", "LDHB", "MDH1", "VDR", "AMD1", "AGO1", "ACP2", "MTCH2"),
+                       stop_codon = c("UGA", "UAG", rep("UGA", times = 12)),
+                       motif = c("-", "", "hnRNPA2/B1", rep("CUAG", times = 7), "", "Let-7a", "", "12nt"))
 
-# Observed frequency of stop codon and nt +4 together
-p_stop4_ob <- ggplot(stop4_chisq) +
-  geom_tile(aes(x = nt_p04, y = Sample, fill = observed_fraction*100), height = 0.9, width = 0.9) +
-  facet_grid(.~stop_codon) +
-  scale_fill_distiller(name = "Observed frequency (%) of\nstop codon and nt +4", palette = "Spectral", limit = c(2, 21)) +
-  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
-  xlab("nt +4") + ylab("") +
-  theme_bw(base_size = 10) + 
-  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
-        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
-  guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
-                                title.position = "top"))
+allAG_reg_rt <- bind_rows(allAG_reg, .id = "Sample")
+allAG_reg_rt <- left_join(allAG_reg_rt, rt_genes[, c("gene_name", "motif")], by = "gene_name")
 
-# Expected frequency of stop codon and nt +4 together
-p_stop4_ex <- ggplot(stop4_chisq) +
-  geom_tile(aes(x = nt_p04, y = Sample, fill = expected_fraction*100), height = 0.9, width = 0.9) +
-  facet_grid(.~stop_codon) +
-  scale_fill_distiller(name = "Expected frequency (%) of\nstop codon and nt +4", palette = "Spectral", limit = c(2, 21)) +
-  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
-  xlab("nt +4") + ylab("") +
-  theme_bw(base_size = 10) + 
-  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
-        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
-  guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
-                                title.position = "top"))
+allAG_reg_rt$Group <- "Other"
+allAG_reg_rt[which(allAG_reg_rt$stop_codon == "TGA" & allAG_reg_rt$nt_p04 == "C" & allAG_reg_rt$nt_p05 == "T" & allAG_reg_rt$nt_p06 == "A" & allAG_reg_rt$nt_p07 == "G"), ]$Group <- "Non-SCR mRNAs: UGA CUAG motif"
+allAG_reg_rt[which(allAG_reg_rt$gene %in% c("AQP4", "OPRL1", "OPRK1", "MAPK10", "LDHB", "MDH1", "VDR")), ]$Group <- "SCR mRNAs: UGA CUAG motif"
+allAG_reg_rt[which(allAG_reg_rt$gene %in% c("HBB", "MPZ", "VEGFA", "AMD1", "AGO1", "ACP2", "MTCH2")), ]$Group <- "SCR mRNAs: Other motif"
+allAG_reg_rt$Sample <- recode_factor(allAG_reg_rt$Sample, Untr = "Untreated", Amik = "Amikacin", 
+                                     G418_2000 = "G418 (2)", G418_500 = "G418 (0.5)", G418_500_10min = "G418 (0.5, 10 min)",  
+                                     Genta = "Gentamicin", Neo = "Neomycin", Parom = "Paromomycin", Tobra = "Tobramycin")
+allAG_reg_rt$Group <- factor(allAG_reg_rt$Group, levels = c("SCR mRNAs: UGA CUAG motif", "SCR mRNAs: Other motif", "Non-SCR mRNAs: UGA CUAG motif", "Selenoprotein", "Other"))
 
-# Observed frequency of stop codon and nt +4, separately
-df_stop <- stop4_chisq %>% group_by(Sample, stop_codon) %>% summarise(count = sum(observed_count))
-df_stop <- df_stop %>% group_by(Sample) %>% mutate(fraction = count / sum(count))
-colnames(df_stop)[2] <- "position"
-df_stop$feature <- "Stop codon"
-df_nt4 <- stop4_chisq %>% group_by(Sample, nt_p04) %>% summarise(count = sum(observed_count))
-df_nt4 <- df_nt4 %>% group_by(Sample) %>% mutate(fraction = count / sum(count))
-colnames(df_nt4)[2] <- "position"
-df_nt4$feature <- "nt +4"
-df <- rbind(df_stop, df_nt4)
-df$feature <- factor(df$feature, levels = c("Stop codon", "nt +4"))
+## Density plot
+toplot <- allAG_reg_rt
+#toplot <- allAG_reg_rt[which(allAG_reg_rt$stop_codon == "TGA"), ]
+toplot_summary <- toplot %>% group_by(Sample) %>% get_summary_stats(log_rte)
+p_dist_all <- ggplot() + 
+  geom_density(data = toplot, 
+               aes(x = log_rte), alpha = 0.1, fill = "grey80") +
+  geom_point(data = toplot[which(!(toplot$Group %in% c("Other"))), ], 
+             aes(y = 0, x = log_rte, color = Group), alpha = 0.5) + 
+  geom_label_repel(data = toplot[which(!(toplot$Group %in% c("Other"))), ],
+                   aes(y = 0, x = log_rte, label = gene_name, color = Group), 
+                   size = 6/.pt, show.legend = FALSE, nudge_y = 0.1,
+                   #direction = "y", 
+                   label.padding = 0.1, box.padding = 0.1, point.padding = 0.1, max.overlaps = Inf, min.segment.length = 0) + 
+  geom_vline(data = toplot_summary, aes(xintercept = median), linetype = "dashed", color = "grey30", alpha = 0.5) +
+  geom_vline(data = toplot_summary, aes(xintercept = mean), linetype = "dashed", color = "brown", alpha = 0.5) +
+  facet_wrap(~Sample, nrow = 2) +
+  xlab("Readthrough efficiency") + ylab("Density") + 
+  labs(subtitle = "All mRNAs") +
+  #labs(subtitle = "UGA mRNAs") +
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), panel.spacing = unit(0.1, "cm"), legend.position = "bottom",
+        strip.background = element_rect(fill = "white"), strip.text = element_text(face = "italic")) +
+  guides(color = guide_legend(title = "", override.aes = list(alpha = 1)))
 
-p_sep <- ggplot(df) +
-  geom_tile(aes(x = position, y = Sample, fill = fraction*100), height = 0.9, width = 0.9) +
-  facet_grid(.~feature, scales = "free_x", space = "free_x") +
-  scale_fill_distiller(name = "Observed frequency (%)", palette = "Spectral", limit = c(10, 60)) +
-  scale_y_discrete(limits = rev(levels(df_stop$Sample))) +
-  xlab("") + ylab("") +
-  theme_bw(base_size = 10) + 
-  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
-        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
-  guides(fill = guide_colourbar(order = 1, barwidth = unit(4, "cm"), barheight = unit(0.25, "cm"), 
-                                title.position = "top"))
-
-# Observed frequency, grouped by stop codon identity
-p_ob <- ggplot(stop4_chisq) +
-  geom_tile(aes(x = nt_p04, y = Sample, fill = observed_fraction_by_stop*100), height = 0.9, width = 0.9) +
-  facet_grid(.~stop_codon) +
-  scale_fill_distiller(name = "Observed frequency (%) of\nnt +4 for each stop codon", palette = "Spectral", limits = c(10, 45)) +
-  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
-  xlab("nt +4") + ylab("") +
-  theme_bw(base_size = 10) + 
-  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
-        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), legend.title.align = 0.5,
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
-  guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
-                                title.position = "top"))
-
-# Expected frequency, grouped by stop codon identity
-p_ex <- ggplot(stop4_chisq) +
-  geom_tile(aes(x = nt_p04, y = Sample, fill = expected_fraction_by_stop*100), height = 0.9, width = 0.9) +
-  facet_grid(.~stop_codon) +
-  scale_fill_distiller(name = "Expected frequency (%) of\nnt +4 for each stop codon", palette = "Spectral", limits = c(10, 45)) +
-  scale_y_discrete(limits = rev(levels(stop4_chisq$Sample))) +
-  xlab("nt +4") + ylab("") +
-  theme_bw(base_size = 10) + 
-  theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
-        legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), 
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
-  guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
-                                title.position = "top"))
-
+# Combine panels
 library(patchwork)
-p <- (p_n | p_sep) / (p_stop4_ob | p_ob) / (p_stop4_ex | p_ex) +
-  plot_annotation(tag_levels = 'A') &
-  theme(plot.tag = element_text(size = 12, face = "bold"), plot.tag.position = "topleft")
+p_dist <- (p_dist_all / p_dist_uga) + 
+  plot_layout(guides = "collect") +
+  plot_annotation(tag_levels = "a") & 
+  theme(plot.tag = element_text(size = 8, face = "bold"), plot.tag.position = "topleft", legend.position = "bottom")
 
 # Export plot
 library(Cairo)
@@ -124,6 +72,6 @@ CairoFonts(
   bolditalic = "Arial:style=Black Italic",
   symbol = "Symbol"
 )
-cairo_pdf(filename = "FigureS2.pdf", family = "Arial", width = 7.5, height = 9) 
-p
+cairo_pdf(filename = "../Plots/FigureS2.pdf", family = "Arial", width = 7, height = 8.5) 
+p_dist
 dev.off()
