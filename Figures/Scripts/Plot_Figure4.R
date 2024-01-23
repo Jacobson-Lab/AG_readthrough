@@ -109,13 +109,3 @@ CairoFonts(
 cairo_pdf(filename = "../Plots/Figure4.pdf", family = "Arial", width = 7, height = 7) 
 p
 dev.off()
-
-# (half-column)
-leg <- get_legend(p_rt_compare)
-test <- p_rt_reporter / (p_fc_reporter | leg) / p_rt_compare / p_rt_native / (p_fc_native | plot_spacer()) + 
-  #plot_layout(guides = "collect") + 
-  plot_annotation(tag_levels = list(c("a", "b", "", "c", "d", "e"))) &
-  theme(plot.tag = element_text(size = 8, face = "bold"), plot.tag.position = "topleft", legend.position = "none")
-cairo_pdf(filename = "../Plots/Figure4_test.pdf", family = "Arial", width = 3.4, height = 8.5) 
-test
-dev.off()
