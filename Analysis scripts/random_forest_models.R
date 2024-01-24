@@ -23,6 +23,7 @@ allAG_rf_reg <- lapply(allAG_reg, rfFit, y_val = "log_rte", col_feature = featur
                        ntree_ = 100, cv_fold = 5, met = "RMSE", dummy = FALSE, mtry_ = seq(1, length(feature_to_run), 10))
 save(allAG_rf_reg, file = "allAG_rf_reg.Rdata")
 # 2.2 Classification
+set.seed(2423)
 allAG_rf_class <- lapply(allAG_reg, rfFit, y_val = "Group", col_feature = feature_to_run, 
                          ntree_ = 100, cv_fold = 5, met = "ROC", dummy = FALSE, mtry_ = seq(1, length(feature_to_run), 10))
 save(allAG_rf_class, file = "allAG_rf_class.Rdata")
