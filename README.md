@@ -16,7 +16,7 @@ caret_6.0-86
 randomForest_4.6-14
 ```
 #### R packages used on R version 4.2 (on local computer)
-General data handling
+General data handling:
 ```
 readxl_1.4.0
 dplyr_1.0.8
