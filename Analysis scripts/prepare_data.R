@@ -99,5 +99,12 @@ mfe <- read.table("minMFE.txt", header = TRUE, sep = "\t")
 feature_file <- left_join(feature_file, mfe, by = "transcript")
 feature_file[is.na(feature_file$MFE), ]$MFE <- 0 # set NA MFE to zero
 
+### Stop codon and nt +4 combination
+feature_file$stop_ntp04 <- paste0(feature_file$stop_codon, feature_file$nt_p04)
+
 ### Save file
 save(feature_file, file = "feature_file_wangen_elife_2020.Rdata")
+
+### Export file (Remove "sequence" column to save space)
+feature_file$sequence <- NULL
+write.csv(feature_file, file = "feature_file.csv", quote = FALSE, row.names = FALSE)

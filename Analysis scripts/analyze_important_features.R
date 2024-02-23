@@ -1,11 +1,10 @@
 # Analysis of important mRNA features
 load("allAG_merged.Rdata") # From prepare_data.R
-load("feature_file_wangen_elife_2020.Rdata") # From prepare_data.R
 source("functions_analyses.R")
 library(data.table)
 library(dplyr)
+feature_file <- data.table(read.csv("feature_file.csv")) # From prepare_data.R
 
-feature_file$stop_ntp04 <- paste0(feature_file$stop_codon, feature_file$nt_p04)
 allAG_reg <- lapply(allAG_merged, prep, cds_rpkm_cutoff = 5, utr3_rpkm_cutoff = 0.5, group_param = "none", feature_file = feature_file, utr3_region = "ext")
 
 ## 1. Stop codon and surrounding nucleotides
@@ -18,7 +17,7 @@ write.table(x = dff, file = "../Figures/Data/wilcoxon_stop_nts.txt", sep = "\t",
 dff2 <- bind_rows(lapply(allAG_reg, compare_rt_categorical, vars = "stop_ntp04", y_var = "log_rte"), .id = "Sample")
 dff2$Var <- gsub("T", "U", dff2$Var)
 dff2$stop_codon <- gsub('.{1}$', '', dff2$Var)
-dff2$ntp_04 <- gsub('^.{3}', '', dff2$Var)
+dff2$nt_p04 <- gsub('^.{3}', '', dff2$Var)
 write.table(x = dff2, file = "../Figures/Data/wilcoxon_stop4.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
   ## Frequency of and Chi-square test of association between stop codon and nt +4

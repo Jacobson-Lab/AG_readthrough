@@ -46,7 +46,7 @@ prep <- function(df, cds_rpkm_cutoff = 5, utr3_rpkm_cutoff = 0.5, group_param = 
     message("Invalid grouping parameter")
   }
   # 4. Combine data with feature_file
-  df <- left_join(df[, c("transcript", "rpkm_cds", "rpkm_utr5", "rpkm_utr3", "rpkm_ext", "rte_ext", "log_rte")], feature_file[, -c("sequence")], by = "transcript")
+  df <- left_join(df[, c("transcript", "rpkm_cds", "rpkm_utr5", "rpkm_utr3", "rpkm_ext", "rte_ext", "log_rte")], feature_file, by = "transcript")
   # 5. Final clean up
   df <- df[which(df$l_utr3 >= 10), ] # Remove mRNAs with 3'-UTR shorter than 9 nt
   df <- df[complete.cases(df), ] # Remove any rows with NA
@@ -102,24 +102,32 @@ compare_rt_categorical <- function(dat, vars, y_var = "log_rte") {
   # vars: a vector containing column name of categorical variables to analyze
   # y_var: column name of y variable (continuous variable)
   compare_rt <- function(dat, var, y_var) {
+    # Get desired columns and rename
     df <- dat[, c(y_var, var), with = FALSE]
     names(df) <- c("y_var", "Var")
+    # Comparative analysis by Wilcoxon test
     cm <- ggpubr::compare_means(formula = y_var~Var, data = df, method = "wilcox.test", ref.group = ".all.", p.adjust.method = "BH")
+    # Find median of each var
     tb <- boxplot(y_var~Var, data = df, plot = FALSE)
+      # Get median
     tbs <- data.frame(tb$stats)
     colnames(tbs) <- tb$names
     tbs <- data.frame(t(tbs))
     tbs$group2 <- row.names(tbs)
-    res <- left_join(cm[, c("group2", "p", "p.adj")], tbs[, c("group2", "X3")], by = "group2")
+      # Get n
+    nn <- data.frame(group2 = tb$names, n = tb$n)
+    # Combine dataframes
+    res <- left_join(nn, cm[, c("group2", "p", "p.adj")], by = "group2")
+    res <- left_join(res, tbs[, c("group2", "X3")], by = "group2")
     res$samp_median <- median(df$y_var)
-    names(res) <- c("Var", "p", "p.adj", "median", "samp_median")
+    names(res) <- c("Var", "n", "p", "p.adj", "median", "samp_median")
     res$median_diff <- res$median - res$samp_median
     res <- within(res, {
       p_sig = ifelse(p.adj < 0.05, "p < 0.05", "ns")
       p_hw = ifelse(p.adj < 0.05, 0.9, 0.6)
     })
-    res$feature <- var
     res$p_sig <- factor(res$p_sig, levels = c("p < 0.05", "ns"))
+    res$feature <- var
     return(res)
   }
   res_list <- list()
