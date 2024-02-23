@@ -28,8 +28,8 @@ pA <- ggplot(dff) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "bottom", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), 
-        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 6.5), axis.text.y = element_text(face = "italic", size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(3, "cm"), barheight = unit(0.25, "cm")), 
          size = guide_legend(order = 2, override.aes = list(color = "white"), keywidth = unit(0.3, "cm"), keyheight = unit(0.3, "cm")))
 
@@ -54,8 +54,8 @@ pB <- ggplot(dff2) +
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "none", legend.box = "vertical", legend.direction = "horizontal",
         legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), 
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(3, "cm"), barheight = unit(0.25, "cm")), 
          size = guide_legend(order = 2, override.aes = list(color = "white"), keywidth = unit(0.3, "cm"), keyheight = unit(0.3, "cm")))
 
@@ -79,8 +79,8 @@ pC <- ggplot(chisq_df) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "bottom", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), 
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), title.position = "top"), 
          size = "none")
 
@@ -106,8 +106,8 @@ pD <- ggplot(dfpc) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), 
-        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 6.5), axis.text.y = element_text(face = "italic", size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(3, "cm"), barheight = unit(0.25, "cm")), 
          size = guide_legend(order = 2, override.aes = list(color = "white"), keywidth = unit(0.3, "cm"), keyheight = unit(0.3, "cm")))
 

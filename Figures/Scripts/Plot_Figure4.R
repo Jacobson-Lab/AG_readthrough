@@ -24,8 +24,8 @@ p_rt_reporter <- ggplot(df, aes(x = average_measured_rt, y = predicted_rt_report
   scale_x_continuous(expand = c(0.1, 0.1)) + scale_y_continuous(expand = c(0.1, 0.1)) + 
   xlab("Average measured readthrough") + ylab("Predicted readthrough\n(reporter sequence)") +
   theme_bw(base_size = 7) + 
-  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), 
-        legend.position = "top")
+  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), strip.text = element_text(size = 7),
+        axis.text = element_text(size = 6.5), legend.position = "top")
 
 p_rt_native <- ggplot(df, aes(x = average_measured_rt, y = predicted_rt_native)) + 
   geom_point(aes(color = stop_codon), alpha = 0.5) + 
@@ -39,23 +39,31 @@ p_rt_native <- ggplot(df, aes(x = average_measured_rt, y = predicted_rt_native))
   scale_x_continuous(expand = c(0.1, 0.1)) + scale_y_continuous(expand = c(0.1, 0.1)) + 
   xlab("Average measured readthrough") + ylab("Predicted readthrough\n(native sequence)") +
   theme_bw(base_size = 7) + 
-  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), 
-        legend.position = "top")
+  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), strip.text = element_text(size = 7),
+        axis.text = element_text(size = 6.5), legend.position = "top")
 
+cor_rt_compare <-  df %>% group_by(G418_treatment) %>% cor_test(predicted_rt_native, predicted_rt_reporter, method = "spearman")
+cor_rt_compare$xcoord <- c(-3.1, -1.37)
 p_rt_compare <- ggplot(df, aes(x = predicted_rt_native, y = predicted_rt_reporter)) + 
   geom_point(aes(color = stop_codon), alpha = 0.5) + 
   geom_text_repel(aes(label = Mutation, color = stop_codon), size = 6/.pt, show.legend = FALSE,
                   box.padding = 0.1, point.padding = 0.1, max.overlaps = Inf, min.segment.length = 0) +
   geom_smooth(method = "lm", se = FALSE, alpha = 0.5, linewidth = 0.5, color = "grey50") + 
-  stat_cor(method = "spearman", cor.coef.name = "rho", size = 6/.pt, 
-           label.x = Inf, label.y = -Inf, hjust = 1.1, vjust = -0.1, show.legend = FALSE) +
+  #stat_cor(method = "spearman", cor.coef.name = "rho", size = 6/.pt, 
+   #        label.x = Inf, label.y = -Inf, hjust = 1.1, vjust = -0.1, show.legend = FALSE) + # Does not give exact p-value for p < 2.2e-16
+  geom_text(data = cor_rt_compare, aes(x = xcoord, y = -Inf, label = paste0("rho", "==", cor)), 
+            parse = TRUE, hjust = 1, vjust = -0.1, size = 6/.pt) +
+  geom_text(data = cor_rt_compare, aes(x = xcoord, y = -Inf, label = " , "), 
+            parse = FALSE, hjust = 0, vjust = -0.4, size = 6/.pt) +
+  geom_text(data = cor_rt_compare, aes(x = Inf, y = -Inf, label = paste0("italic('p')==", p)), 
+            parse = TRUE, hjust = 1.2, vjust = -0.1, size = 6/.pt) +
   facet_wrap(~G418_treatment, scales = "free", nrow = 1) +
   scale_color_manual(name = "Stop codon", values = c("red", "orange", "forestgreen")) +
   scale_x_continuous(expand = c(0.1, 0.1)) + scale_y_continuous(expand = c(0.1, 0.1)) + 
   xlab("Predicted readthrough (native sequence)") + ylab("Predicted readthrough\n(reporter sequence)") +
   theme_bw(base_size = 7) + 
-  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), 
-        legend.position = "right")
+  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), strip.text = element_text(size = 7),
+        axis.text = element_text(size = 6.5), legend.position = "right")
 
 # Dual-Luc measurement vs. Predicted foldchange
 fc <- read.table("../Data/measured_vs_predicted_readthrough_G418-treated_Untreated_foldchange.txt", header = TRUE, sep = "\t")
@@ -72,8 +80,9 @@ p_fc_reporter <- ggplot(fc, aes(x = foldchange_measured_rt, y = foldchange_predi
   scale_x_continuous(expand = c(0.1, 0.1)) +
   scale_color_manual(name = "Stop codon", values = c("red", "orange", "forestgreen")) +
   xlab("Measured readthrough") + ylab("Predicted readthrough\n(reporter sequence)") +
-  theme_bw(base_size = 7) + theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), 
-                                   legend.position = "top")
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), strip.text = element_text(size = 7),
+        axis.text = element_text(size = 6.5), legend.position = "top")
 
 p_fc_native <- ggplot(fc, aes(x = foldchange_measured_rt, y = foldchange_predicted_rt_native)) +
   geom_point(aes(color = stop_codon), alpha = 0.5) + 
@@ -85,8 +94,9 @@ p_fc_native <- ggplot(fc, aes(x = foldchange_measured_rt, y = foldchange_predict
   scale_x_continuous(expand = c(0.1, 0.1)) +
   scale_color_manual(name = "Stop codon", values = c("red", "orange", "forestgreen")) +
   xlab("Measured readthrough") + ylab("Predicted readthrough\n(native sequence)") +
-  theme_bw(base_size = 7) + theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), 
-                                   legend.position = "top")
+  theme_bw(base_size = 7) + 
+  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), strip.text = element_text(size = 7),
+        axis.text = element_text(size = 6.5), legend.position = "top")
 
 # Combine panels
 library(patchwork)

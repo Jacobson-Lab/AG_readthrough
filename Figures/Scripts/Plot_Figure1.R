@@ -16,6 +16,7 @@ imp_class <- imp_class[, c(1, 4, 6)]
 
 # Combine A and B data
 all.imp_df <- full_join(imp_reg, imp_class, by = c("Sample", "feature"))
+all.imp_df <- all.imp_df[, c(1, 3, 2, 4)]
 
 # Prepare for plot
 all.imp_df$xtick <- as.factor(all.imp_df$feature) # for x-axis label
@@ -28,10 +29,10 @@ all.imp_df$xtick <- recode_factor(all.imp_df$xtick,
                                   nis_stop = "1st 3'UTR stop", l_utr3 = "3'-UTR length", MFE = "MFE", dist_bp = "Distance from stop", random_factor = "Random factor", random_num = "Random number")
 
 all.imp_df$xgroup <- NA # for faceting
-all.imp_df$xgroup <- gsub("tunnel_lower_.*", "aa 20-30\nfrom PTC", all.imp_df$feature)
-all.imp_df$xgroup <- gsub("tunnel_central_.*", "aa 13-19\nfrom PTC", all.imp_df$xgroup)
-all.imp_df$xgroup <- gsub("tunnel_constriction_.*", "aa 10-12\nfrom PTC", all.imp_df$xgroup)
-all.imp_df$xgroup <- gsub("tunnel_upper_.*", "aa 3-9\nfrom PTC", all.imp_df$xgroup)
+all.imp_df$xgroup <- gsub("tunnel_lower_.*", "aa 20-30\nfrom NTC", all.imp_df$feature)
+all.imp_df$xgroup <- gsub("tunnel_central_.*", "aa 13-19\nfrom NTC", all.imp_df$xgroup)
+all.imp_df$xgroup <- gsub("tunnel_constriction_.*", "aa 10-12\nfrom NTC", all.imp_df$xgroup)
+all.imp_df$xgroup <- gsub("tunnel_upper_.*", "aa 3-9\nfrom NTC", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("aa_m.*", "", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("nt_m.*", " nt from stop ", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("stop_codon", " ", all.imp_df$xgroup)
@@ -39,7 +40,7 @@ all.imp_df$xgroup <- gsub("nt_p.*", "nt from stop", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("l_utr3", "  ", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("nis_stop", "   ", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("random_.*", "NC", all.imp_df$xgroup)
-all.imp_df$xgroup <- factor(all.imp_df$xgroup, levels = c("aa 20-30\nfrom PTC", "aa 13-19\nfrom PTC", "aa 10-12\nfrom PTC", "aa 3-9\nfrom PTC", "", " nt from stop ", " ", "nt from stop", "  ", "   ", "2°", "NC"))
+all.imp_df$xgroup <- factor(all.imp_df$xgroup, levels = c("aa 20-30\nfrom NTC", "aa 13-19\nfrom NTC", "aa 10-12\nfrom NTC", "aa 3-9\nfrom NTC", "", " nt from stop ", " ", "nt from stop", "  ", "   ", "2°", "NC"))
 
 all.imp_df$xgroup2 <- NA # for nested faceting
 all.imp_df[which(grepl(pattern = "aa", x = all.imp_df$xgroup)), ]$xgroup2 <- "Nascent peptide in the exit tunnel"
@@ -65,9 +66,9 @@ A <- ggplot() +
   theme_bw(base_size = 7) +
   theme(legend.position = "top", legend.key.width = unit(1, "cm"), legend.key.height = unit(0.25, "cm"), 
         legend.box.spacing = unit(0, "cm"), legend.title.align = 0,
-        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), axis.text.y = element_text(face = "italic"), 
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 6.5), axis.text.y = element_text(face = "italic", size = 6.5), 
         axis.title = element_blank(),
-        strip.background = element_blank(), strip.text.y = element_blank(), 
+        strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x = element_text(size = 7),
         panel.border = element_rect(colour = "black", fill = NA), 
         panel.grid = element_blank(), panel.spacing = unit(0,"cm"))
 B <- ggplot() +
@@ -80,9 +81,9 @@ B <- ggplot() +
   theme_bw(base_size = 7) +
   theme(legend.position = "top", legend.key.width = unit(1, "cm"), legend.key.height = unit(0.25, "cm"), 
         legend.box.spacing = unit(0, "cm"), legend.title.align = 0,
-        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), axis.text.y = element_text(face = "italic"), 
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 6.5), axis.text.y = element_text(face = "italic", size = 6.5), 
         axis.title = element_blank(),
-        strip.background = element_blank(), strip.text.y = element_blank(), 
+        strip.background = element_blank(), strip.text.y = element_blank(), strip.text.x = element_text(size = 7),
         panel.border = element_rect(colour = "black", fill = NA), 
         panel.grid = element_blank(), panel.spacing = unit(0,"cm"))
 
@@ -101,6 +102,6 @@ CairoFonts(
   bolditalic = "Arial:style=Black Italic",
   symbol = "Symbol"
 )
-cairo_pdf(filename = "../Plots/Figure1.pdf", family = "Arial", width = 7, height = 5) 
+cairo_pdf(filename = "../Plots/Figure1.pdf", family = "Arial", width = 7, height = 5.5) 
 p
 dev.off()

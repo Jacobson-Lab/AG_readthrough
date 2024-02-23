@@ -50,13 +50,11 @@ p_feat_model <- ggplot() +
   # Facet
   facet_nested(.~xgroup2+xgroup, scales = "free", space = "free", nest_line = TRUE) +
   scale_y_discrete(limits = rev(levels(feat_model$Sample2))) +
-  labs(tag = "B") +
   theme_bw(base_size = 7) +
   theme(legend.position = "top", legend.key.width = unit(1, "cm"), legend.key.height = unit(0.25, "cm"), 
         legend.box.spacing = unit(0, "cm"), legend.title.align = 0,
-        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), axis.text.y = element_text(face = "italic"), 
-        axis.title = element_blank(),
-        strip.background = element_blank(), plot.tag = element_text(size = 12, face = "bold"), plot.tag.position = "topleft",
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 6.5), axis.text.y = element_text(face = "italic", size = 6.5), 
+        axis.title = element_blank(), strip.text = element_text(size = 7), strip.background = element_blank(), 
         panel.border = element_rect(colour = "black", fill = NA), panel.grid = element_blank(), panel.spacing = unit(0,"cm"))
 
 # Performance metrics of different models
@@ -70,26 +68,32 @@ p_nrmse <- ggplot(metrics_model[metrics_model$metrics == "NRMSE", ],
                   aes(x = Model, y = value)) +
   stat_summary(geom = "errorbar", fun = mean, linewidth = 1.2, color = "purple", 
                aes(y = value, ymax = after_stat(y), ymin = after_stat(y))) +
-  geom_point(alpha = 0.5) +
+  stat_summary(fun.min = function(x) mean(x) - sd(x), 
+               fun.max = function(x) mean(x) + sd(x), 
+               geom = "errorbar", width = 0.2, position = position_dodge(0.9)) +
+  geom_jitter(alpha = 0.5, color = "black", height = 0, width = 0.25) +
   stat_pvalue_manual(data = stat.test[stat.test$metrics == "NRMSE", ], 
                      label = "p.adj", tip.length = 0.01, size = 6/.pt, hide.ns = FALSE) +
   ylab("NRMSE") +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), strip.background.x = element_rect(fill = "white"), strip.placement = "outside", 
-        strip.background.y = element_rect(fill = "white", color = "white"))
+        strip.background.y = element_rect(fill = "white", color = "white"), axis.text = element_text(size = 6.5))
 
 p_auroc <- ggplot(metrics_model[metrics_model$metrics == "AUROC", ], 
                   aes(x = Model, y = value)) +
   stat_summary(geom = "errorbar", fun = mean, linewidth = 1.2, color = "purple", 
                aes(y = value, ymax = after_stat(y), ymin = after_stat(y))) +
-  geom_point(alpha = 0.5) +
+  stat_summary(fun.min = function(x) mean(x) - sd(x), 
+               fun.max = function(x) mean(x) + sd(x), 
+               geom = "errorbar", width = 0.2, position = position_dodge(0.9)) +
+  geom_jitter(alpha = 0.5, color = "black", height = 0, width = 0.25) +
   geom_hline(yintercept = 0.5, color = "red") +
   stat_pvalue_manual(data = stat.test[stat.test$metrics == "AUROC", ], 
                      label = "p.adj", tip.length = 0.01, size = 6/.pt, hide.ns = FALSE) +
   ylab("AUROC") + 
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), strip.background.x = element_rect(fill = "white"), strip.placement = "outside", 
-        strip.background.y = element_rect(fill = "white", color = "white"))
+        strip.background.y = element_rect(fill = "white", color = "white"), axis.text = element_text(size = 6.5))
 
 # Combine panels
 library(patchwork)

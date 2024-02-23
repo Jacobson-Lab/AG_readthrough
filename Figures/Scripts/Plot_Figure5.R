@@ -29,7 +29,8 @@ pA <- ggplot(fc2, aes(x = average_measured_rt, y = log2fc)) +
   xlab("Average measured readthrough\nUntreated") + 
   ylab(expression(atop("Average measured readthrough", "log"[2]*"(G418 / Untreated)"))) +
   theme_bw(base_size = 7) + 
-  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), legend.position = "right")
+  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), strip.text = element_text(size = 7),
+        axis.text = element_text(size = 6.5), legend.position = "right")
 
 # Fold change vs stop codon
 comp <- get_comparisons(fc2, variable = "stop_codon")
@@ -43,7 +44,8 @@ pB <- ggplot(fc2, aes(x = stop_codon, y = log2fc, color = stop_codon)) +
   scale_color_manual(name = "Stop codon", values = c("red", "orange", "forestgreen")) + 
   xlab("") + ylab(expression(atop("Average measured readthrough", "log"[2]*"(G418 / Untreated)"))) +
   theme_bw(base_size = 7) + 
-  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), legend.position = "none")
+  theme(panel.grid = element_blank(), strip.background = element_rect(fill = "white"), strip.text = element_text(size = 7),
+        axis.text = element_text(size = 6.5), legend.position = "none")
 
 # Combine panels
 library(patchwork)

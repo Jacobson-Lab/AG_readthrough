@@ -22,7 +22,7 @@ p_n <- ggplot(dfn, aes(x = n, y = Sample)) +
   coord_cartesian(xlim = c(0, 15000)) +
   xlab("Number of mRNAs") + ylab("") +
   theme_bw(base_size = 7) + 
-  theme(panel.grid = element_blank(), axis.text.y = element_text(face = "italic"))
+  theme(panel.grid = element_blank(), axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5))
 
 # Observed frequency of stop codon and nt +4 together
 p_stop4_ob <- ggplot(stop4_chisq) +
@@ -34,8 +34,8 @@ p_stop4_ob <- ggplot(stop4_chisq) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
                                 title.position = "top"))
 
@@ -49,8 +49,8 @@ p_stop4_ex <- ggplot(stop4_chisq) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
                                 title.position = "top"))
 
@@ -75,8 +75,8 @@ p_sep <- ggplot(df) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"),
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(4, "cm"), barheight = unit(0.25, "cm"), 
                                 title.position = "top"))
 
@@ -90,8 +90,8 @@ p_ob <- ggplot(stop4_chisq) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), legend.title.align = 0.5,
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
                                 title.position = "top"))
 
@@ -105,8 +105,8 @@ p_ex <- ggplot(stop4_chisq) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), 
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25)) +
+        axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5),
+        strip.text.y = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25)) +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(5, "cm"), barheight = unit(0.25, "cm"), 
                                 title.position = "top"))
 

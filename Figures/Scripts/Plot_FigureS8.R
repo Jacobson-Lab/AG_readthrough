@@ -41,7 +41,7 @@ cftr <- left_join(cftr, df[, c("allele_name", "stop_codon")], by = "allele_name"
 cftr$stop_codon <- factor(cftr$stop_codon, levels = c("UGA", "UAG", "UAA"))
 cftr <- cftr[which(cftr$Mutation != "S434X"), ] # Remove S434X because Dual-Luc measurements were compromised by non-readthrough signals
 
-p_cftr2 <- ggplot(cftr, aes(x = variable, y = axis_lab)) +
+p_cftr <- ggplot(cftr, aes(x = variable, y = axis_lab)) +
   geom_tile(aes(fill = median_diff, height = p_hw, width = p_hw, size = p_sig)) +
   geom_text(aes(label = value), size = 6/.pt) +
   scale_fill_gradient2(name = "Group's median readthrough   \nrelative to sample median   \nG418 (0.5)   ",
@@ -49,14 +49,14 @@ p_cftr2 <- ggplot(cftr, aes(x = variable, y = axis_lab)) +
                        limits = c(-1, 1), oob = scales::squish,
                        breaks = seq(-1, 1, length = 5), labels = c("< -1.0", "-0.5\nLower", "0.0", "0.5\nHigher", "> 1.0")) +
   scale_size_manual(values = c(`p < 0.05` = 0, ns = 3), name = "Significance") +
-  #facet_grid(.~facet_lab, scales = "free", space = "free") + # p_cftr
-  facet_grid(stop_codon~facet_lab, scales = "free", space = "free") + # p_cftr2
+  facet_grid(.~facet_lab, scales = "free", space = "free") + # p_cftr
+  #facet_grid(stop_codon~facet_lab, scales = "free", space = "free") + # p_cftr2
   xlab("") + ylab(expression(atop("Ordered by readthrough measured in G418-treated condition", "lowest" %->% "highest"))) +
   theme_bw(base_size = 7) + 
   theme(panel.grid = element_blank(), panel.spacing = unit(0, "cm"), panel.border = element_rect(size = 0.25),
         legend.position = "top", legend.box = "horizontal", legend.title = element_text(hjust = 0.5, vjust = 1), legend.margin = margin(r = 1, unit = "cm"), 
-        axis.text.y = element_text(face = "italic"),
-        strip.text.y = element_text(angle = 0), strip.background = element_rect(fill = "white", size = 0.25), strip.placement = "outside") +
+        axis.text.y = element_text(face = "italic", size = 6.5), axis.text.x = element_text(size = 6.5),
+        strip.text = element_text(angle = 0, size = 7), strip.background = element_rect(fill = "white", size = 0.25), strip.placement = "outside") +
   guides(fill = guide_colourbar(order = 1, barwidth = unit(3, "cm"), barheight = unit(0.25, "cm")), 
          size = guide_legend(order = 2, override.aes = list(color = "white"), keywidth = unit(0.3, "cm"), keyheight = unit(0.3, "cm")))
 
