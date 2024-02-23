@@ -25,6 +25,7 @@ reshape2_1.4.4
 ```
 Biological sequence data handling:
 ```
+biomaRt_2.52.0
 seqinr_4.2-8
 Biostrings_2.64.0
 ```
@@ -49,5 +50,5 @@ Cairo_1.5-15
 ```
 ## Demo and expected output
 *  Source data from Wangen and Green, eLife (2020) was too large to upload here, but it can be downloaded at  https://cdn.elifesciences.org/articles/52611/elife-52611-fig2-data1-v2.xlsx. Move/copy the file into _**Analysis scripts**_ folder to use with the codes there.
-*  _**Analysis scripts**_ folder contains codes used to prepare data, create models, and use models for prediction as well as intermediate files (i.e., expected output at different stages of analyses) in Rdata format for reference. All files should be in the same folder as appeared for ease of use.
+*  _**Analysis scripts**_ folder contains codes used to prepare data, create models, and use models for prediction as well as intermediate files (i.e., expected output at different stages of analyses) in Rdata format or csv/txt format for reference. All files should be in the same folder as appeared for ease of use.
 *  _**Figures**_ folder contains tab- or comma-delimited files underlying each figure and the code to plot the figure.
