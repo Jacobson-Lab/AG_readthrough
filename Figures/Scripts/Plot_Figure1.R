@@ -29,10 +29,10 @@ all.imp_df$xtick <- recode_factor(all.imp_df$xtick,
                                   nis_stop = "1st 3'UTR stop", l_utr3 = "3'-UTR length", MFE = "MFE", dist_bp = "Distance from stop", random_factor = "Random factor", random_num = "Random number")
 
 all.imp_df$xgroup <- NA # for faceting
-all.imp_df$xgroup <- gsub("tunnel_lower_.*", "aa 20-30\nfrom NTC", all.imp_df$feature)
-all.imp_df$xgroup <- gsub("tunnel_central_.*", "aa 13-19\nfrom NTC", all.imp_df$xgroup)
-all.imp_df$xgroup <- gsub("tunnel_constriction_.*", "aa 10-12\nfrom NTC", all.imp_df$xgroup)
-all.imp_df$xgroup <- gsub("tunnel_upper_.*", "aa 3-9\nfrom NTC", all.imp_df$xgroup)
+all.imp_df$xgroup <- gsub("tunnel_lower_.*", "aa 20-30\nfrom stop", all.imp_df$feature)
+all.imp_df$xgroup <- gsub("tunnel_central_.*", "aa 13-19\nfrom stop", all.imp_df$xgroup)
+all.imp_df$xgroup <- gsub("tunnel_constriction_.*", "aa 10-12\nfrom stop", all.imp_df$xgroup)
+all.imp_df$xgroup <- gsub("tunnel_upper_.*", "aa 3-9\nfrom stop", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("aa_m.*", "", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("nt_m.*", " nt from stop ", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("stop_codon", " ", all.imp_df$xgroup)
@@ -40,7 +40,7 @@ all.imp_df$xgroup <- gsub("nt_p.*", "nt from stop", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("l_utr3", "  ", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("nis_stop", "   ", all.imp_df$xgroup)
 all.imp_df$xgroup <- gsub("random_.*", "NC", all.imp_df$xgroup)
-all.imp_df$xgroup <- factor(all.imp_df$xgroup, levels = c("aa 20-30\nfrom NTC", "aa 13-19\nfrom NTC", "aa 10-12\nfrom NTC", "aa 3-9\nfrom NTC", "", " nt from stop ", " ", "nt from stop", "  ", "   ", "2°", "NC"))
+all.imp_df$xgroup <- factor(all.imp_df$xgroup, levels = c("aa 20-30\nfrom stop", "aa 13-19\nfrom stop", "aa 10-12\nfrom stop", "aa 3-9\nfrom stop", "", " nt from stop ", " ", "nt from stop", "  ", "   ", "2°", "NC"))
 
 all.imp_df$xgroup2 <- NA # for nested faceting
 all.imp_df[which(grepl(pattern = "aa", x = all.imp_df$xgroup)), ]$xgroup2 <- "Nascent peptide in the exit tunnel"

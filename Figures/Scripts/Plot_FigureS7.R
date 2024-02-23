@@ -19,7 +19,7 @@ feat_model$X.IncMSE <- NA
 feat_model[feat_model$Sample == "Full", ]$X.IncMSE <- all.imp_df[all.imp_df$Sample == "G418 (0.5)", ]$X.IncMSE
 feat_model$assay <- "No"
 feat_model[feat_model$Sample == "Full" & feat_model$xtick %in% assay_feat, ]$assay <- "Yes"
-feat_model[feat_model$Sample == "Full" & feat_model$xgroup == "aa 3-9\nfrom PTC", ]$assay <- "Yes_partial"
+feat_model[feat_model$Sample == "Full" & feat_model$xgroup == "aa 3-9\nfrom stop", ]$assay <- "Yes_partial"
 feat_model$assay <- factor(feat_model$assay, levels = c("Yes", "Yes_partial", "No"))
 feat_model$Sample <- factor(feat_model$Sample, levels = c("Full", "Assay", "Reduced", "Mock1", "Mock2", "Mock3"))
 
